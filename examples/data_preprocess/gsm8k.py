@@ -47,7 +47,7 @@ if __name__ == "__main__":
     data_source = "openai/gsm8k"
 
     if local_dataset_path is not None:
-        dataset = datasets.load_dataset(local_dataset_path, "main")
+        dataset = datasets.load_dataset(local_dataset_path, "default")
     else:
         dataset = datasets.load_dataset(data_source, "main")
 
