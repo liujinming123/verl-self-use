@@ -67,6 +67,8 @@ python3 -m verl.trainer.main_ppo \
     +algorithm.filter_groups.enable=${enable_filter_groups} \
     +algorithm.filter_groups.metric=${filter_groups_metric} \
     +algorithm.filter_groups.max_num_gen_batches=${max_num_gen_batches} \
+    custom_reward_function.path=verl/utils/reward_score/qwen_grpo_car_dialogue.py \
+    custom_reward_function.name=compute_score \
     reward_model.reward_manager=dapo \
     +reward_model.num_examine=1 \
     trainer.logger='["console"]' \

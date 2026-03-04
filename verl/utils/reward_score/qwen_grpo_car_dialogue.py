@@ -15,7 +15,7 @@
 import re
 
 
-def compute_score(solution_str, ground_truth, data_source=None, extra_info=None):
+def compute_score(solution_str, ground_truth, data_source=None, extra_info=None, **kwargs):
     """
     奖励函数：比较模型输出与 ground_truth
 
