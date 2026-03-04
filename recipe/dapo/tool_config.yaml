@@ -1,0 +1,21 @@
+tools:
+  - class_name: verl.tools.search_similar_cases.SearchSimilarCasesTool
+    config:
+      type: native
+      history_data_path: "/vepfs/group03/user/ljm/work/qwen_grpo/data/data_history.csv"
+    tool_schema:
+      type: function
+      function:
+        name: search_similar_cases
+        description: "检索历史对话案例。当需要参考历史案例来判断当前对话中用户是否有负反馈及其原因时使用。你可自主决定检索关键词（如问题类型、场景、意图、关键句子等）和返回个数，系统返回最相似的几个历史案例。"
+        parameters:
+          type: object
+          properties:
+            keywords:
+              type: string
+              description: "检索关键词，多个关键词用空格分隔"
+            top_k:
+              type: integer
+              description: "返回结果数量，默认5条"
+          required:
+            - keywords
