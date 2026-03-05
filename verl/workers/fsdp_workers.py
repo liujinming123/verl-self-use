@@ -488,11 +488,8 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
                 tiled_mlp_shards=tiled_mlp_shards,
             )
 
-            # some parameters may not in torch_dtype. TODO(zhangchi.usc1992) remove this after we switch to fsdp2
+            # some parameters may not be in torch_dtype. TODO(zhangchi.usc1992) remove this after we switch to fsdp2
             actor_module.to(torch_dtype)
-
-            if enable_gradient_checkpointing:
-                actor_module.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
 
         if self._is_lora:
             print("Applying LoRA to actor module")
@@ -632,6 +629,8 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
 
         if enable_activation_offload:
             enable_activation_offloading(actor_module_fsdp, fsdp_strategy, enable_gradient_checkpointing)
+        elif enable_gradient_checkpointing:
+            actor_module_fsdp.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
 
         log_gpu_memory_usage(f"After {role} FSDP init", logger=logger)
 
@@ -1443,11 +1442,8 @@ class CriticWorker(Worker, DistProfilerExtension):
                 tiled_mlp_shards=tiled_mlp_shards,
             )
 
-            # some parameters may not in torch_dtype
+            # some parameters may not be in torch_dtype
             critic_module.to(torch_dtype)
-
-            if config.model.get("enable_gradient_checkpointing", False):
-                critic_module.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
 
         if self._is_lora:
             print("Applying LoRA to critic module")
@@ -1565,6 +1561,8 @@ class CriticWorker(Worker, DistProfilerExtension):
         if config.model.get("enable_activation_offload", False):
             enable_gradient_checkpointing = config.model.get("enable_gradient_checkpointing", False)
             enable_activation_offloading(critic_module, config.strategy, enable_gradient_checkpointing)
+        elif config.model.get("enable_gradient_checkpointing", False):
+            critic_module.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
 
         log_gpu_memory_usage("After critic FSDP", logger=None)
 

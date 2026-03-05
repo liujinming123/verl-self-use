@@ -261,11 +261,8 @@ class FSDPEngine(BaseEngine):
                 fused_kernels_backend=fused_kernels_backend,
             )
 
-            # some parameters may not in torch_dtype
+            # some parameters may not be in torch_dtype
             module.to(torch_dtype)
-
-            if self.model_config.enable_gradient_checkpointing:
-                module.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
         return module
 
     def _build_lora_module(self, module):
@@ -385,6 +382,8 @@ class FSDPEngine(BaseEngine):
         if self.model_config.enable_activation_offload:
             enable_gradient_checkpointing = self.model_config.enable_gradient_checkpointing
             enable_activation_offloading(module, self.engine_config.strategy, enable_gradient_checkpointing)
+        elif self.model_config.enable_gradient_checkpointing:
+            module.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
 
         if torch.distributed.get_world_size() == 1 and fsdp_version(module) == 1:
             FSDP.set_state_dict_type(
