@@ -43,6 +43,7 @@ python3 -m verl.trainer.main_ppo \
     data.filter_overlong_prompts=True \
     data.shuffle=True \
     data.truncation='error' \
+    data.return_raw_chat=True \
     actor_rollout_ref.model.path="${MODEL_PATH}" \
     actor_rollout_ref.model.use_remove_padding=True \
     actor_rollout_ref.model.use_fused_kernels=True \
@@ -65,7 +66,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.ppo_epochs=1 \
     actor_rollout_ref.actor.checkpoint.save_contents='["model"]' \
     actor_rollout_ref.actor.checkpoint.async_save=False \
-    actor_rollout_ref.actor.use_torch_compile=False \
+    actor_rollout_ref.actor.use_torch_compile=True \
     actor_rollout_ref.rollout.n=${n_resp_per_prompt} \
     actor_rollout_ref.rollout.name=sglang \
     actor_rollout_ref.rollout.tensor_model_parallel_size=8 \
@@ -79,13 +80,14 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.over_sample_rate=0 \
     ++actor_rollout_ref.rollout.mode=async \
     ++actor_rollout_ref.rollout.multi_turn.enable=True \
-    ++actor_rollout_ref.rollout.multi_turn.max_user_turns=2 \
-    ++actor_rollout_ref.rollout.multi_turn.max_assistant_turns=2 \
+    ++actor_rollout_ref.rollout.multi_turn.max_user_turns=5 \
+    ++actor_rollout_ref.rollout.multi_turn.max_assistant_turns=5 \
     ++actor_rollout_ref.rollout.multi_turn.max_parallel_calls=1 \
-    ++actor_rollout_ref.rollout.multi_turn.max_tool_response_length=500 \
+    ++actor_rollout_ref.rollout.multi_turn.max_tool_response_length=1000 \
     ++actor_rollout_ref.rollout.multi_turn.tool_response_truncate_side=left \
     ++actor_rollout_ref.rollout.multi_turn.tool_config_path="${TOOL_CONFIG_PATH}" \
     ++actor_rollout_ref.rollout.multi_turn.format=gpt-oss \
+    ++actor_rollout_ref.rollout.agent.default_agent_loop=tool_agent \
     actor_rollout_ref.rollout.free_cache_engine=True \
     actor_rollout_ref.hybrid_engine=True \
     custom_reward_function.path=verl/utils/reward_score/qwen_grpo_car_dialogue.py \
