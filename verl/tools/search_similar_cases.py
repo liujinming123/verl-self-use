@@ -15,8 +15,8 @@ import csv
 import json
 from typing import Any, Dict, List, Optional
 
-from verl.tools.base import BaseTool, ToolResponse
-from verl.tools.schemas import ToolExecutionResponse
+from verl.tools.base_tool import BaseTool, ToolResponse
+ToolExecutionResponse = ToolResponse
 
 
 class SearchSimilarCasesTool(BaseTool):
@@ -67,7 +67,7 @@ class SearchSimilarCasesTool(BaseTool):
         return instance_id, metadata
 
     async def execute(
-        self, instance_id: str, tool_args: Dict[str, Any], agent_data: Optional[Any] = None
+        self, instance_id: str, tool_args: Any, agent_data: Optional[Any] = None
     ) -> tuple[ToolExecutionResponse, float, Dict[str, Any]]:
         """Execute the tool.
 

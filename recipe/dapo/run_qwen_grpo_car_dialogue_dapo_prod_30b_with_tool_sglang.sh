@@ -86,7 +86,6 @@ python3 -m verl.trainer.main_ppo \
     ++actor_rollout_ref.rollout.multi_turn.max_tool_response_length=1000 \
     ++actor_rollout_ref.rollout.multi_turn.tool_response_truncate_side=left \
     ++actor_rollout_ref.rollout.multi_turn.tool_config_path="${TOOL_CONFIG_PATH}" \
-    ++actor_rollout_ref.rollout.multi_turn.format=gpt-oss \
     ++actor_rollout_ref.rollout.agent.default_agent_loop=tool_agent \
     actor_rollout_ref.rollout.free_cache_engine=True \
     actor_rollout_ref.hybrid_engine=True \
@@ -96,7 +95,7 @@ python3 -m verl.trainer.main_ppo \
     +reward_model.num_examine=1 \
     trainer.logger='["console","tensorboard"]' \
     trainer.project_name='qwen_grpo_car_dialogue_dapo' \
-    trainer.experiment_name='prod_qwen3_30b_a3b_v1_with_tool_sglang' \
+    trainer.experiment_name='prod_qwen3_30b_a3b_v1_with_tool_sglang_2' \
     trainer.n_gpus_per_node=8 \
     trainer.nnodes=1 \
     trainer.save_freq=647 \

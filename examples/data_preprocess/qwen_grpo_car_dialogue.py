@@ -24,7 +24,7 @@ user_prompt = """
 4. 当汽车语音助手回复"好的"时，看作汽车语音助手正确执行了指令。
 5. 当用户对汽车语音助手发出导航指令时，汽车语音助手会搜索可能的目的地，并回复"选第几个"，这被看作汽车语音助手正确执行了指令。当用户之后吐槽骂脏话时，这可能是第5点的情况:asr识别错误。
 6. 当用户对汽车语音助手发出多媒体播放指令时，汽车语音助手有时会搜索可能的多媒体资源，并回复"为你找到以下"，这被看作汽车语音助手正确执行了指令。当用户之后吐槽骂脏话时，这可能是第5点的情况:asr识别错误，也可能是找到的资源和用户预期的不一致。
-
+请使用工具search_similar_cases检索历史相似案例。
 你需要分析的对话是: 
 ```
 {text}
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     
     os.makedirs(args.local_dir, exist_ok=True)
     
-    train_output_path = os.path.join(args.local_dir, "train.parquet")
+    train_output_path = os.path.join(args.local_dir, "train_tool.parquet")
     test_output_path = os.path.join(args.local_dir, "test.parquet")
     
     pq.write_table(train_table, train_output_path)

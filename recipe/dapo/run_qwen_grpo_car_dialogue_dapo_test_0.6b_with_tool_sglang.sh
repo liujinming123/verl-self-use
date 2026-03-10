@@ -2,9 +2,8 @@
 set -xeuo pipefail
 export HYDRA_FULL_ERROR=1
 
-# Small model for testing
-MODEL_PATH="/vepfs/group03/model-public/Qwen3-0.6B"
-TRAIN_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/train.parquet"
+MODEL_PATH="/vepfs/group03/model-public/Qwen3-1.7B"
+TRAIN_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/train_tool.parquet"
 VAL_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/test.parquet"
 
 adv_estimator=grpo
@@ -19,13 +18,13 @@ enable_filter_groups=True
 filter_groups_metric=seq_reward
 max_num_gen_batches=8
 
-max_prompt_length=1024
-max_response_length=1024
-n_resp_per_prompt=2
+max_prompt_length=2048
+max_response_length=2048
+n_resp_per_prompt=8
 train_prompt_mini_bsz=8
 
 lr=1e-6
-log_every_n_steps=5
+log_every_n_steps=10
 
 # Tool configuration
 TOOL_CONFIG_PATH="/vepfs/group03/user/ljm/git_program/verl/recipe/dapo/tool_config.yaml"
@@ -46,8 +45,8 @@ python3 -m verl.trainer.main_ppo \
     data.truncation='error' \
     actor_rollout_ref.model.path="${MODEL_PATH}" \
     actor_rollout_ref.model.use_remove_padding=True \
-    actor_rollout_ref.model.use_fused_kernels=False \
-    actor_rollout_ref.model.enable_gradient_checkpointing=False \
+    actor_rollout_ref.model.use_fused_kernels=True \
+    actor_rollout_ref.model.enable_gradient_checkpointing=True \
     actor_rollout_ref.actor.optim.lr=${lr} \
     actor_rollout_ref.actor.clip_ratio_low=${clip_ratio_low} \
     actor_rollout_ref.actor.clip_ratio_high=${clip_ratio_high} \
@@ -59,7 +58,6 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.use_dynamic_bsz=False \
     actor_rollout_ref.actor.fsdp_config.param_offload=True \
     actor_rollout_ref.actor.fsdp_config.optimizer_offload=True \
-    actor_rollout_ref.actor.fsdp_config.offload_policy=True \
     actor_rollout_ref.actor.fsdp_config.reshard_after_forward=True \
     actor_rollout_ref.actor.fsdp_config.use_orig_params=False \
     actor_rollout_ref.actor.entropy_coeff=0 \
@@ -67,37 +65,36 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.ppo_epochs=1 \
     actor_rollout_ref.actor.checkpoint.save_contents='["model"]' \
     actor_rollout_ref.actor.checkpoint.async_save=False \
-    actor_rollout_ref.actor.strategy=fsdp2 \
     actor_rollout_ref.actor.use_torch_compile=True \
     actor_rollout_ref.rollout.n=${n_resp_per_prompt} \
-    actor_rollout_ref.rollout.name=sglang \
+    actor_rollout_ref.rollout.name=vllm \
     actor_rollout_ref.rollout.tensor_model_parallel_size=1 \
-    actor_rollout_ref.rollout.gpu_memory_utilization=0.8 \
+    actor_rollout_ref.rollout.gpu_memory_utilization=0.3 \
     actor_rollout_ref.rollout.max_model_len=4096 \
     actor_rollout_ref.rollout.enable_chunked_prefill=True \
-    actor_rollout_ref.rollout.max_num_batched_tokens=2048 \
-    actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=1 \
+    actor_rollout_ref.rollout.max_num_batched_tokens=1024 \
+    ++actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=1 \
     actor_rollout_ref.rollout.log_prob_use_dynamic_bsz=False \
     actor_rollout_ref.rollout.multi_stage_wake_up=True \
     actor_rollout_ref.rollout.over_sample_rate=0 \
     ++actor_rollout_ref.rollout.mode=async \
     ++actor_rollout_ref.rollout.multi_turn.enable=True \
-    ++actor_rollout_ref.rollout.multi_turn.max_user_turns=2 \
-    ++actor_rollout_ref.rollout.multi_turn.max_assistant_turns=2 \
+    ++actor_rollout_ref.rollout.multi_turn.max_user_turns=5 \
+    ++actor_rollout_ref.rollout.multi_turn.max_assistant_turns=5 \
     ++actor_rollout_ref.rollout.multi_turn.max_parallel_calls=1 \
-    ++actor_rollout_ref.rollout.multi_turn.max_tool_response_length=500 \
+    ++actor_rollout_ref.rollout.multi_turn.max_tool_response_length=1000 \
     ++actor_rollout_ref.rollout.multi_turn.tool_response_truncate_side=left \
     ++actor_rollout_ref.rollout.multi_turn.tool_config_path="${TOOL_CONFIG_PATH}" \
-    ++actor_rollout_ref.rollout.multi_turn.format=gpt-oss \
+    ++actor_rollout_ref.rollout.agent.default_agent_loop=tool_agent \
     actor_rollout_ref.rollout.free_cache_engine=True \
     actor_rollout_ref.hybrid_engine=True \
     custom_reward_function.path=verl/utils/reward_score/qwen_grpo_car_dialogue.py \
     custom_reward_function.name=compute_score \
     reward_model.reward_manager=dapo \
     +reward_model.num_examine=1 \
-    trainer.logger='["console"]' \
-    trainer.project_name='qwen_grpo_car_dialogue_dapo_test' \
-    trainer.experiment_name='test_qwen3_0.6b_sglang' \
+    trainer.logger='["console","tensorboard"]' \
+    trainer.project_name='qwen_grpo_car_dialogue_dapo' \
+    trainer.experiment_name='test_qwen3_0.6b_v1_with_tool_sglang' \
     trainer.n_gpus_per_node=1 \
     trainer.nnodes=1 \
     trainer.save_freq=10 \
