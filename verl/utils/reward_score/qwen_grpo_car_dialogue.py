@@ -43,14 +43,14 @@ def compute_score(solution_str, ground_truth, data_source=None, extra_info=None,
     cleaned_str = re.sub(r"\s+", " ", cleaned_str).strip()
 
     # 2. 提取答案部分：查找 "**总结：** 是" 或 "**总结：** 否"
-    answer_pattern = r"\*\*总结：\*\*\s*(是|否)"
+    answer_pattern = r"\b(1|0)\b"
     match = re.search(answer_pattern, cleaned_str)
 
     if not match:
         return -1.0
 
     predicted = match.group(1)
-    predicted_label = 1 if predicted == "是" else 0
+    predicted_label = int(predicted)
     ground_truth_int = int(ground_truth)
 
     return 1.0 if predicted_label == ground_truth_int else -1.0
