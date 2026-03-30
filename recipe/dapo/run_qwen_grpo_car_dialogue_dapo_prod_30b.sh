@@ -3,8 +3,8 @@ set -xeuo pipefail
 export HYDRA_FULL_ERROR=1
 
 MODEL_PATH="/vepfs/group03/user/ljm/git_program/verl/checkpoints/qwen_sft_car_dialogue/sft_qwen3_30b_a3b_v1/global_step_647/merged"
-TRAIN_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/train.parquet"
-VAL_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/test.parquet"
+TRAIN_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/train_new.parquet"
+VAL_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/test_new.parquet"
 
 adv_estimator=grpo
 clip_ratio_low=0.2

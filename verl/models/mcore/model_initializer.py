@@ -273,4 +273,16 @@ class Qwen25VLModel(BaseModelInitializer):
                 input_size=tfconfig.hidden_size, output_size=1, config=tfconfig
             )
 
+        # Freeze vision tower parameters by default for text-only training
+        freeze_vision_tower = kwargs.get("freeze_vision_tower", True)
+        if freeze_vision_tower:
+            # Freeze vision transformer
+            if hasattr(qwen25_vl_model, 'vision_model') and qwen25_vl_model.vision_model is not None:
+                for param in qwen25_vl_model.vision_model.parameters():
+                    param.requires_grad = False
+            # Freeze vision projection
+            if hasattr(qwen25_vl_model, 'vision_projection') and qwen25_vl_model.vision_projection is not None:
+                for param in qwen25_vl_model.vision_projection.parameters():
+                    param.requires_grad = False
+
         return qwen25_vl_model

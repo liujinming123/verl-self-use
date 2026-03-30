@@ -3,8 +3,8 @@ set -xeuo pipefail
 export HYDRA_FULL_ERROR=1
 
 MODEL_PATH="/vepfs/group03/user/ljm/base_model/Qwen/Qwen3-30B-A3B-Thinking-2507"
-TRAIN_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/train.parquet"
-VAL_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/test.parquet"
+TRAIN_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/train_new.parquet"
+VAL_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/test_new.parquet"
 
 adv_estimator=grpo
 clip_ratio_low=0.2
@@ -18,8 +18,8 @@ enable_filter_groups=True
 filter_groups_metric=seq_reward
 max_num_gen_batches=10
 
-max_prompt_length=2048
-max_response_length=2048
+max_prompt_length=3000
+max_response_length=12000
 n_resp_per_prompt=8
 train_prompt_mini_bsz=8
 
@@ -44,6 +44,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.model.use_remove_padding=True \
     actor_rollout_ref.model.use_fused_kernels=True \
     actor_rollout_ref.model.enable_gradient_checkpointing=True \
+    actor_rollout_ref.model.enable_activation_offload=True \
     actor_rollout_ref.actor.optim.lr=${lr} \
     actor_rollout_ref.actor.clip_ratio_low=${clip_ratio_low} \
     actor_rollout_ref.actor.clip_ratio_high=${clip_ratio_high} \
@@ -67,9 +68,9 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.name=vllm \
     actor_rollout_ref.rollout.tensor_model_parallel_size=8 \
     actor_rollout_ref.rollout.gpu_memory_utilization=0.15 \
-    actor_rollout_ref.rollout.max_model_len=4096 \
+    actor_rollout_ref.rollout.max_model_len=${max_response_length} \
     actor_rollout_ref.rollout.enable_chunked_prefill=True \
-    actor_rollout_ref.rollout.max_num_batched_tokens=1024 \
+    actor_rollout_ref.rollout.max_num_batched_tokens=8192 \
     actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=1 \
     actor_rollout_ref.rollout.log_prob_use_dynamic_bsz=False \
     actor_rollout_ref.rollout.free_cache_engine=True \

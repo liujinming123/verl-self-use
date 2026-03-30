@@ -31,7 +31,7 @@ max_num_gen_batches=8
 max_prompt_length=3000
 max_response_length=20000
 n_resp_per_prompt=8
-train_prompt_mini_bsz=8
+train_prompt_mini_bsz=4
 train_bsz=8
 
 lr=1e-6
