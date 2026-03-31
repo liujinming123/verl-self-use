@@ -1,5 +1,6 @@
 import argparse
 import os
+import re
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -276,7 +277,20 @@ if __name__ == "__main__":
         def process_fn(row, idx):
             query = row["query"]
             label = int(row["label"])
-            think_label = row["think_label"]
+            think_label = row["think_label"].strip()
+            
+            # 拆分合并标签：有不文明用语，产品体验差或者上下文中正常指令未响应
+            MERGE_LABEL = "有不文明用语，产品体验差或者上下文中正常指令未响应"
+            if think_label == MERGE_LABEL:
+                # 匹配用户最后一句话之前车机是否有空回复
+                # 正则逻辑：最后一个用户发言之前，存在"汽车语音助手: "后面全是空白的情况
+                no_response_pattern = r"汽车语音助手:\s*\n(?=.*用户: [^\n]*(<疑似吐槽>|不文明用语|骂人|操|傻逼|滚|智障))"
+                if re.search(no_response_pattern, query, flags=re.DOTALL):
+                    # 车机有未响应的情况，拆分为指令未响应
+                    think_label = "有不文明用语，上下文中正常指令未响应"
+                else:
+                    # 其他情况拆分为产品体验差
+                    think_label = "有不文明用语，产品体验差"
             
             data = {
                 "data_source": data_source,
