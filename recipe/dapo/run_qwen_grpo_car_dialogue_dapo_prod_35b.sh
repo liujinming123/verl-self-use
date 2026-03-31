@@ -2,6 +2,7 @@
 set -xeuo pipefail
 export FLASHINFER_DISABLE_VERSION_CHECK=1
 export CUDA_DEVICE_MAX_CONNECTIONS=1
+export HYDRA_FULL_ERROR=1
 
 MODEL_PATH="/vepfs/public/model-public/Qwen3.5-35B-A3B"
 TRAIN_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/train_new.parquet"
@@ -12,7 +13,7 @@ PP=${PP:-1}
 CP=${CP:-1}
 EP=${EP:-4}
 ETP=${ETP:-1}
-GEN_TP=${GEN_TP:-2}
+GEN_TP=${GEN_TP:-8}
 
 ALL_OFFLOAD=${ALL_OFFLOAD:-True}
 
@@ -31,7 +32,7 @@ max_num_gen_batches=8
 max_prompt_length=3000
 max_response_length=15000
 n_resp_per_prompt=8
-train_prompt_mini_bsz=4
+train_prompt_mini_bsz=8
 train_bsz=8
 
 lr=1e-6
@@ -59,7 +60,6 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.model.use_fused_kernels=False \
     actor_rollout_ref.model.enable_gradient_checkpointing=True \
     actor_rollout_ref.model.enable_activation_offload=True \
-    actor_rollout_ref.model.trust_remote_code=True \
     actor_rollout_ref.actor.optim.lr=${lr} \
     actor_rollout_ref.actor.clip_ratio_low=${clip_ratio_low} \
     actor_rollout_ref.actor.clip_ratio_high=${clip_ratio_high} \
@@ -103,7 +103,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.n=${n_resp_per_prompt} \
     actor_rollout_ref.rollout.name=sglang \
     actor_rollout_ref.rollout.tensor_model_parallel_size=${GEN_TP} \
-    actor_rollout_ref.rollout.gpu_memory_utilization=0.5 \
+    actor_rollout_ref.rollout.gpu_memory_utilization=0.2 \
     actor_rollout_ref.rollout.max_model_len=${max_response_length} \
     actor_rollout_ref.rollout.enable_chunked_prefill=True \
     actor_rollout_ref.rollout.max_num_batched_tokens=8192 \
@@ -117,7 +117,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.temperature=1.0 \
     actor_rollout_ref.rollout.dtype=bfloat16 \
     actor_rollout_ref.hybrid_engine=True \
-    custom_reward_function.path=verl/utils/reward_score/qwen_grpo_car_dialogue.py \
+    custom_reward_function.path=verl/utils/reward_score/qwen_grpo_car_dialogue_no_reason.py \
     custom_reward_function.name=compute_score \
     reward_model.reward_manager=dapo \
     +reward_model.num_examine=1 \

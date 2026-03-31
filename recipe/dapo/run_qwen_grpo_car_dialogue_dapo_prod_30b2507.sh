@@ -19,7 +19,7 @@ filter_groups_metric=seq_reward
 max_num_gen_batches=10
 
 max_prompt_length=3000
-max_response_length=12000
+max_response_length=8192
 n_resp_per_prompt=8
 train_prompt_mini_bsz=8
 
@@ -65,9 +65,9 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.checkpoint.async_save=False \
     actor_rollout_ref.actor.use_torch_compile=False \
     actor_rollout_ref.rollout.n=${n_resp_per_prompt} \
-    actor_rollout_ref.rollout.name=vllm \
+    actor_rollout_ref.rollout.name=sglang \
     actor_rollout_ref.rollout.tensor_model_parallel_size=8 \
-    actor_rollout_ref.rollout.gpu_memory_utilization=0.15 \
+    actor_rollout_ref.rollout.gpu_memory_utilization=0.2 \
     actor_rollout_ref.rollout.max_model_len=${max_response_length} \
     actor_rollout_ref.rollout.enable_chunked_prefill=True \
     actor_rollout_ref.rollout.max_num_batched_tokens=8192 \
@@ -75,7 +75,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.log_prob_use_dynamic_bsz=False \
     actor_rollout_ref.rollout.free_cache_engine=True \
     ++actor_rollout_ref.rollout.mode=async \
-    custom_reward_function.path=verl/utils/reward_score/qwen_grpo_car_dialogue.py \
+    custom_reward_function.path=verl/utils/reward_score/qwen_grpo_car_dialogue_no_reason_rebalance.py \
     custom_reward_function.name=compute_score \
     reward_model.reward_manager=dapo \
     +reward_model.num_examine=3 \
