@@ -3,6 +3,8 @@ set -xeuo pipefail
 export FLASHINFER_DISABLE_VERSION_CHECK=1
 export CUDA_DEVICE_MAX_CONNECTIONS=1
 export HYDRA_FULL_ERROR=1
+export VLLM_USE_V1=1
+export VLLM_ALLREDUCE_USE_SYMM_MEM=0
 
 MODEL_PATH="/vepfs/public/model-public/Qwen3.5-35B-A3B"
 TRAIN_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/train_new.parquet"
@@ -68,7 +70,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.loss_agg_mode=${loss_agg_mode} \
     actor_rollout_ref.actor.ppo_mini_batch_size=${train_prompt_mini_bsz} \
     actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=1 \
-    actor_rollout_ref.actor.ppo_max_token_len_per_gpu=8192 \
+    actor_rollout_ref.actor.ppo_max_token_len_per_gpu=1024 \
     actor_rollout_ref.actor.use_dynamic_bsz=False \
     actor_rollout_ref.actor.entropy_coeff=0 \
     actor_rollout_ref.actor.calculate_entropy=False \
@@ -101,15 +103,15 @@ python3 -m verl.trainer.main_ppo \
     +actor_rollout_ref.actor.optim.override_optimizer_config.use_precision_aware_optimizer=True \
     +actor_rollout_ref.actor.optim.override_optimizer_config.optimizer_cpu_offload=True \
     actor_rollout_ref.rollout.n=${n_resp_per_prompt} \
-    actor_rollout_ref.rollout.name=sglang \
+    actor_rollout_ref.rollout.name=vllm \
     actor_rollout_ref.rollout.tensor_model_parallel_size=${GEN_TP} \
     actor_rollout_ref.rollout.gpu_memory_utilization=0.2 \
     actor_rollout_ref.rollout.max_model_len=${max_response_length} \
     actor_rollout_ref.rollout.enable_chunked_prefill=True \
-    actor_rollout_ref.rollout.max_num_batched_tokens=8192 \
+    actor_rollout_ref.rollout.max_num_batched_tokens=1024 \
     actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=1 \
     actor_rollout_ref.rollout.log_prob_use_dynamic_bsz=False \
-    actor_rollout_ref.rollout.log_prob_max_token_len_per_gpu=8192 \
+    actor_rollout_ref.rollout.log_prob_max_token_len_per_gpu=1024 \
     actor_rollout_ref.rollout.multi_stage_wake_up=True \
     actor_rollout_ref.rollout.over_sample_rate=0 \
     ++actor_rollout_ref.rollout.mode=async \

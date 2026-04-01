@@ -9,8 +9,8 @@ export VLLM_USE_V1=1
 export VLLM_ALLREDUCE_USE_SYMM_MEM=0
 
 MODEL_PATH="/vepfs/group03/user/ljm/base_model/Qwen/Qwen3.5-0.8B"
-TRAIN_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/train.parquet"
-VAL_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/test.parquet"
+TRAIN_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/train_new.parquet"
+VAL_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/test_new.parquet"
 
 TP=${TP:-1}
 PP=${PP:-1}
@@ -19,7 +19,7 @@ EP=${EP:-1}
 ETP=${ETP:-1}
 GEN_TP=${GEN_TP:-1}
 
-ALL_OFFLOAD=${ALL_OFFLOAD:-False}
+ALL_OFFLOAD=${ALL_OFFLOAD:-True}
 
 adv_estimator=grpo
 clip_ratio_low=0.2
@@ -101,9 +101,9 @@ python3 -m verl.trainer.main_ppo \
     +actor_rollout_ref.actor.optim.override_optimizer_config.use_precision_aware_optimizer=True \
     +actor_rollout_ref.actor.optim.override_optimizer_config.optimizer_cpu_offload=True \
     actor_rollout_ref.rollout.n=${n_resp_per_prompt} \
-    actor_rollout_ref.rollout.name=sglang \
+    actor_rollout_ref.rollout.name=vllm \
     actor_rollout_ref.rollout.tensor_model_parallel_size=${GEN_TP} \
-    actor_rollout_ref.rollout.gpu_memory_utilization=0.85 \
+    actor_rollout_ref.rollout.gpu_memory_utilization=0.2 \
     actor_rollout_ref.rollout.max_model_len=4096 \
     actor_rollout_ref.rollout.enable_chunked_prefill=True \
     actor_rollout_ref.rollout.max_num_batched_tokens=1024 \
@@ -115,8 +115,6 @@ python3 -m verl.trainer.main_ppo \
     ++actor_rollout_ref.rollout.mode=async \
     actor_rollout_ref.rollout.free_cache_engine=True \
     actor_rollout_ref.rollout.temperature=1.0 \
-    actor_rollout_ref.rollout.top_p=0.95 \
-    actor_rollout_ref.rollout.top_k=20 \
     actor_rollout_ref.rollout.dtype=bfloat16 \
     actor_rollout_ref.hybrid_engine=True \
     custom_reward_function.path=verl/utils/reward_score/qwen_grpo_car_dialogue.py \
