@@ -123,9 +123,9 @@ MindSpeed 源码安装指令：
         cd MindSpeed && git checkout 2.3.0_core_r0.12.1 && cd ..
         git clone --depth 1 --branch core_v0.12.1 https://github.com/NVIDIA/Megatron-LM.git
     
-        # 安装 MindSpeed & Megatron
-        pip install -e MindSpeed
+        # 安装 Megatron & MindSpeed
         pip install -e Megatron-LM
+        pip install -e MindSpeed
     
         # 安装 mbridge
         pip install mbridge
@@ -147,6 +147,8 @@ MindSpeed 对应 Megatron-LM 后端使用场景，使用方式如下：
     git clone --recursive https://github.com/volcengine/verl.git
     cd verl && pip install -r requirements-npu.txt && pip install -v -e . && cd ..
 
+    # （可选）提示：为了更佳的使用体验，最好将recipe子模块更新至最新commit
+    cd recipe && git checkout main && cd ..
 
 昇腾暂不支持生态库说明
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
