@@ -98,6 +98,9 @@ python3 -m verl.trainer.main_ppo \
     +actor_rollout_ref.actor.megatron.override_transformer_config.recompute_num_layers=1 \
     +actor_rollout_ref.actor.megatron.override_transformer_config.moe_aux_loss_coeff=0.01 \
     +actor_rollout_ref.actor.megatron.override_transformer_config.moe_z_loss_coeff=0.001 \
+    actor_rollout_ref.actor.megatron.use_distributed_optimizer=True \
+    +actor_rollout_ref.actor.optim.override_optimizer_config.overlap_param_gather=True \
+    +actor_rollout_ref.actor.optim.override_optimizer_config.overlap_param_gather_with_optimizer_step=True \
     +actor_rollout_ref.actor.optim.override_optimizer_config.optimizer_offload_fraction=1 \
     +actor_rollout_ref.actor.optim.override_optimizer_config.overlap_cpu_optimizer_d2h_h2d=True \
     +actor_rollout_ref.actor.optim.override_optimizer_config.use_precision_aware_optimizer=True \
