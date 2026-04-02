@@ -62,6 +62,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.model.use_fused_kernels=False \
     actor_rollout_ref.model.enable_gradient_checkpointing=True \
     actor_rollout_ref.model.enable_activation_offload=True \
+    actor_rollout_ref.model.trust_remote_code=True \
     actor_rollout_ref.actor.optim.lr=${lr} \
     actor_rollout_ref.actor.clip_ratio_low=${clip_ratio_low} \
     actor_rollout_ref.actor.clip_ratio_high=${clip_ratio_high} \
@@ -99,8 +100,6 @@ python3 -m verl.trainer.main_ppo \
     +actor_rollout_ref.actor.megatron.override_transformer_config.moe_aux_loss_coeff=0.01 \
     +actor_rollout_ref.actor.megatron.override_transformer_config.moe_z_loss_coeff=0.001 \
     actor_rollout_ref.actor.megatron.use_distributed_optimizer=True \
-    +actor_rollout_ref.actor.optim.override_optimizer_config.overlap_param_gather=True \
-    +actor_rollout_ref.actor.optim.override_optimizer_config.overlap_param_gather_with_optimizer_step=True \
     +actor_rollout_ref.actor.optim.override_optimizer_config.optimizer_offload_fraction=1 \
     +actor_rollout_ref.actor.optim.override_optimizer_config.overlap_cpu_optimizer_d2h_h2d=True \
     +actor_rollout_ref.actor.optim.override_optimizer_config.use_precision_aware_optimizer=True \

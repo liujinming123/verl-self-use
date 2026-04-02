@@ -50,7 +50,7 @@ def enable_full_determinism(seed: int):
     # Enable CUDNN deterministic mode
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
-    torch.backends.cudnn.enabled = False
+    torch.backends.cudnn.enabled = True
     if is_npu_available:
         torch.npu.manual_seed(seed)
         torch.npu.manual_seed_all(seed)

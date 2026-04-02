@@ -66,6 +66,13 @@ def get_megatron_optimizer(
     model,
     config: OptimizerConfig,
 ):
+    # When overlap_param_gather_with_optimizer_step is enabled but there is only
+    # 1 model chunk, Megatron's optimizer code will split model_chunks into
+    # [[model_chunks[0]], model_chunks[1:]] where model_chunks[1:] == [].
+    # The empty list then causes IndexError in DistributedOptimizer.__init__.
+    if config.overlap_param_gather_with_optimizer_step and len(model) <= 1:
+        config.overlap_param_gather_with_optimizer_step = False
+
     # Base optimizer.
     return get_megatron_optimizer_native(
         config=config,
