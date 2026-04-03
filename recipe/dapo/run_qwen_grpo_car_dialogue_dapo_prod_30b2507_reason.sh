@@ -18,8 +18,8 @@ enable_filter_groups=True
 filter_groups_metric=seq_reward
 max_num_gen_batches=10
 
-max_prompt_length=3000
-max_response_length=12000
+max_prompt_length=5000
+max_response_length=15000
 n_resp_per_prompt=8
 train_prompt_mini_bsz=8
 

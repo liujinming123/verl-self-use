@@ -3,8 +3,6 @@ set -xeuo pipefail
 export FLASHINFER_DISABLE_VERSION_CHECK=1
 export CUDA_DEVICE_MAX_CONNECTIONS=1
 export HYDRA_FULL_ERROR=1
-export VLLM_USE_V1=1
-export VLLM_ALLREDUCE_USE_SYMM_MEM=0
 
 MODEL_PATH="/vepfs/group03/user/ljm/base_model/Qwen/Qwen3.5-0.8B"
 TRAIN_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/train_new.parquet"
@@ -84,7 +82,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.fsdp_config.param_offload=True \
     actor_rollout_ref.actor.fsdp_config.optimizer_offload=True \
     actor_rollout_ref.rollout.n=${n_resp_per_prompt} \
-    actor_rollout_ref.rollout.name=vllm \
+    actor_rollout_ref.rollout.name=sglang \
     actor_rollout_ref.rollout.tensor_model_parallel_size=${GEN_TP} \
     actor_rollout_ref.rollout.gpu_memory_utilization=0.2 \
     actor_rollout_ref.rollout.max_model_len=${max_response_length} \
