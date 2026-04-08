@@ -20,7 +20,6 @@ REASON_MAPPING = {
     # 结果=1（骂车机）
     "有不文明用语，功能体验不支持": (1, "功能不支持：车机明确回复不支持用户请求的功能", 1),
     "有不文明用语，产品体验差": (2, "产品体验差：车机回复内容不符合用户预期，交互体验不佳；用户有指令时车机答非所问", 1),
-    "有不文明用语，产品体验差或者上下文中正常指令未响应": (2, "产品体验差：车机回复内容不符合用户预期，交互体验不佳；用户有指令时车机答非所问", 1),
     "有不文明用语，上下文中正常指令未响应": (3, "指令未响应：用户发出正常可理解的指令后，车机无任何回复", 1),
     "有不文明用语，功能重复说": (4, "功能重复响应：车机重复回复相同内容、反复询问相同问题，交互无进展", 1),
     "有不文明用语， 功能重复说": (4, "功能重复响应：车机重复回复相同内容、反复询问相同问题，交互无进展", 1),
@@ -74,7 +73,7 @@ def compute_score(solution_str, ground_truth, data_source=None, extra_info=None,
     answer_pattern = r"结果[：:]\s*(\d+)\b"
     answer_match = re.search(answer_pattern, cleaned_str, flags=re.IGNORECASE)
     if not answer_match:
-        # 提取不到结果，返回-2.0
+        # 提取不到结果，返回-3.0
         return -3.0
     
     predicted_label = int(answer_match.group(1))
@@ -143,7 +142,7 @@ def compute_score(solution_str, ground_truth, data_source=None, extra_info=None,
     
     # 原因正确加0.5奖励
     if reason_correct:
-        reward += 0.5
+        reward += 1
     
     # 最低奖励保底为-3.0（结果错-2 + 不匹配扣-1 = 最低-3）
     return max(reward, -3.0)

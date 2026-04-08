@@ -18,9 +18,9 @@ enable_filter_groups=True
 filter_groups_metric=seq_reward
 max_num_gen_batches=10
 
-max_prompt_length=3000
-max_response_length=12000
-n_resp_per_prompt=8
+max_prompt_length=5000
+max_response_length=15000
+n_resp_per_prompt=16
 train_prompt_mini_bsz=8
 
 lr=1e-6
@@ -81,7 +81,7 @@ python3 -m verl.trainer.main_ppo \
     +reward_model.num_examine=3 \
     trainer.logger='["console","tensorboard"]' \
     trainer.project_name='qwen_grpo_car_dialogue_dapo' \
-    trainer.experiment_name='prod_qwen3_30b_a3b_2507_reason' \
+    trainer.experiment_name='prod_qwen3_30b_a3b_2507_reason_new' \
     trainer.n_gpus_per_node=8 \
     trainer.nnodes=1 \
     trainer.save_freq=647 \
