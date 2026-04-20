@@ -41,20 +41,20 @@ set -xeuo pipefail
 TP=${TP:-2}
 PP=${PP:-1}
 CP=${CP:-1}
-EP=${EP:-8}
+EP=${EP:-4}
 ETP=${ETP:-1}
-GEN_TP=${GEN_TP:-8}
+GEN_TP=${GEN_TP:-4}
 
 ALL_OFFLOAD=${ALL_OFFLOAD:-True}
 
-rollout_name="vllm"
+rollout_name="sglang"
 project_name='verl_grpo_qwen3_5_35b_geo3k'
 exp_name='qwen3_5_35b_megatron'
 adv_estimator=grpo
 
-HF_MODEL_PATH=${HF_MODEL_PATH:-"Qwen3.5-35B-A3B"}
-train_path=${train_path:-$HOME/data/geo3k/train.parquet}
-test_path=${test_path:-$HOME/data/geo3k/test.parquet}
+HF_MODEL_PATH="/vepfs/public/model-public/Qwen3.5-35B-A3B"
+train_path="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/train.parquet"
+test_path="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/test.parquet"
 
 ########################### Parameter Arrays ###########################
 
@@ -139,10 +139,10 @@ ALGORITHM=(
 
 TRAINER=(
     trainer.critic_warmup=0
-    trainer.logger='["console","wandb"]'
+    trainer.logger='["console","tensorboard"]'
     trainer.project_name=${project_name}
     trainer.experiment_name=${exp_name}
-    trainer.n_gpus_per_node=8
+    trainer.n_gpus_per_node=4
     trainer.nnodes=1
     trainer.save_freq=20
     trainer.val_before_train=False
