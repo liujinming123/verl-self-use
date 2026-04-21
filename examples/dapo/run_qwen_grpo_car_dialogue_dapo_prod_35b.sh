@@ -13,7 +13,7 @@ VAL_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/test_new_v2.p
 TP=${TP:-2}
 PP=${PP:-1}
 CP=${CP:-1}
-EP=${EP:-8}
+EP=${EP:-4}
 ETP=${ETP:-1}
 GEN_TP=${GEN_TP:-8}
 
@@ -29,7 +29,7 @@ kl_loss_coef=0.0
 
 enable_filter_groups=True
 filter_groups_metric=seq_reward
-max_num_gen_batches=8
+max_num_gen_batches=16
 
 max_prompt_length=5000
 max_response_length=15000
