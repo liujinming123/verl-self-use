@@ -67,6 +67,8 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.enforce_eager=False \
     actor_rollout_ref.rollout.enable_prefix_caching=False \
     actor_rollout_ref.rollout.checkpoint_engine.update_weights_bucket_megabytes=6144 \
+    custom_reward_function.path=verl/utils/reward_score/qwen_grpo_car_dialogue.py \
+    custom_reward_function.name=compute_score \
     algorithm.use_kl_in_reward=False \
     trainer.use_legacy_worker_impl=auto \
     trainer.critic_warmup=0 \
