@@ -7,13 +7,13 @@ export VLLM_USE_V1=1
 export VLLM_ALLREDUCE_USE_SYMM_MEM=0
 
 MODEL_PATH="/vepfs/public/model-public/Qwen3.5-35B-A3B"
-TRAIN_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/train_new.parquet"
-VAL_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/test_new.parquet"
+TRAIN_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/train_new_v2.parquet"
+VAL_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/test_new_v2.parquet"
 
 TP=${TP:-2}
 PP=${PP:-1}
 CP=${CP:-1}
-EP=${EP:-4}
+EP=${EP:-8}
 ETP=${ETP:-1}
 GEN_TP=${GEN_TP:-8}
 
@@ -31,9 +31,9 @@ enable_filter_groups=True
 filter_groups_metric=seq_reward
 max_num_gen_batches=8
 
-max_prompt_length=3000
+max_prompt_length=5000
 max_response_length=15000
-n_resp_per_prompt=8
+n_resp_per_prompt=16
 train_prompt_mini_bsz=8
 train_bsz=8
 
@@ -77,7 +77,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.ppo_epochs=1 \
     actor_rollout_ref.actor.checkpoint.save_contents='["model"]' \
     actor_rollout_ref.actor.checkpoint.async_save=False \
-    actor_rollout_ref.actor.use_torch_compile=True \
+    actor_rollout_ref.actor.use_torch_compile=False \
     actor_rollout_ref.actor.strategy=megatron \
     actor_rollout_ref.actor.megatron.use_mbridge=True \
     actor_rollout_ref.actor.megatron.vanilla_mbridge=True \
@@ -119,16 +119,16 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.temperature=1.0 \
     actor_rollout_ref.rollout.dtype=bfloat16 \
     actor_rollout_ref.hybrid_engine=True \
-    custom_reward_function.path=verl/utils/reward_score/qwen_grpo_car_dialogue_no_reason.py \
+    custom_reward_function.path=verl/utils/reward_score/qwen_grpo_car_dialogue.py \
     custom_reward_function.name=compute_score \
     reward_model.reward_manager=dapo \
     +reward_model.num_examine=1 \
     trainer.logger='["console","tensorboard"]' \
     trainer.project_name='qwen_grpo_car_dialogue_dapo' \
-    trainer.experiment_name='prod_qwen35_35b_a3b_rl_v2' \
+    trainer.experiment_name='prod_qwen35_35b_a3b_rl_v3' \
     trainer.n_gpus_per_node=8 \
     trainer.nnodes=1 \
-    trainer.save_freq=647 \
+    trainer.save_freq=1287 \
     trainer.test_freq=-1 \
     trainer.total_epochs=1 \
     trainer.val_before_train=False \

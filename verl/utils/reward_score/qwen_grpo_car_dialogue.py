@@ -143,7 +143,7 @@ def compute_score(solution_str, ground_truth, data_source=None, extra_info=None,
     
     # 原因正确加0.5奖励
     if reason_correct:
-        reward += 0.5
+        reward += 1
     
     # 最低奖励保底为-3.0（结果错-2 + 不匹配扣-1 = 最低-3）
     return max(reward, -3.0)
