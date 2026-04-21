@@ -65,7 +65,7 @@ MODEL_PATH="/vepfs/public/model-public/Qwen3.5-35B-A3B"
 TRAIN_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/train_reason_v2.parquet" 
 VAL_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/test_reason_v2.parquet"
 
-sp_size=4
+sp_size=2
 GEN_TP=${GEN_TP:-8}
 
 ALL_OFFLOAD=${ALL_OFFLOAD:-True}
