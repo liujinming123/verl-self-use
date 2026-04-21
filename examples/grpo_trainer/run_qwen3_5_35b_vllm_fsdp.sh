@@ -6,11 +6,9 @@ exp_name='GRPO-Qwen3_5-35B'
 gen_tp=4
 sp_size=1
 ENGINE=${1:-vllm}
-RAY_DATA_HOME=${RAY_DATA_HOME:-"${HOME}/verl"}
-MODEL_PATH=${MODEL_PATH:-"${RAY_DATA_HOME}/models/Qwen3.5-35B-A3B"}
-CKPTS_DIR=${CKPTS_DIR:-"${RAY_DATA_HOME}/ckpts/${project_name}/${exp_name}"}
-TRAIN_FILE=${TRAIN_FILE:-"${RAY_DATA_HOME}/data/geo3k/train.parquet"}
-TEST_FILE=${TEST_FILE:-"${RAY_DATA_HOME}/data/geo3k/test.parquet"}
+MODEL_PATH="/vepfs/public/model-public/Qwen3.5-35B-A3B"
+TRAIN_FILE="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/train_new.parquet"
+TEST_FILE="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/test_new.parquet"
 WORKING_DIR=${WORKING_DIR:-"${PWD}"}
 RUNTIME_ENV=${RUNTIME_ENV:-"${WORKING_DIR}/verl/trainer/runtime_env.yaml"}
 
@@ -22,7 +20,7 @@ python3 -m verl.trainer.main_ppo \
     data.train_files="${TRAIN_FILE}" \
     data.val_files="${TEST_FILE}" \
     data.train_batch_size=64 \
-    data.max_prompt_length=1024 \
+    data.max_prompt_length=3024 \
     data.max_response_length=2048 \
     data.filter_overlong_prompts=True \
     data.truncation='error' \
@@ -41,7 +39,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.use_torch_compile=False \
     actor_rollout_ref.actor.strategy=fsdp2 \
     actor_rollout_ref.ref.strategy=fsdp2 \
-    actor_rollout_ref.actor.fsdp_config.fsdp_size=8 \
+    actor_rollout_ref.actor.fsdp_config.fsdp_size=4 \
     actor_rollout_ref.actor.fsdp_config.reshard_after_forward=True \
     actor_rollout_ref.ref.fsdp_config.reshard_after_forward=True \
     actor_rollout_ref.actor.fsdp_config.entropy_checkpointing=True \
@@ -75,7 +73,7 @@ python3 -m verl.trainer.main_ppo \
     trainer.logger=['console','tensorboard'] \
     trainer.project_name="${project_name}" \
     trainer.experiment_name="${exp_name}" \
-    trainer.n_gpus_per_node=8 \
+    trainer.n_gpus_per_node=4 \
     trainer.nnodes=1 \
     trainer.balance_batch=False \
     trainer.resume_from_path=checkpoints/ \
