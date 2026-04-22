@@ -6,6 +6,61 @@ export HYDRA_FULL_ERROR=1
 export VLLM_USE_V1=1
 export VLLM_ALLREDUCE_USE_SYMM_MEM=0
 
+# Read environment variables
+HEAD_NODE_IP="${MLP_WORKER_0_HOST:-localhost}"
+RAY_PORT="${MLP_WORKER_0_PORT:-6379}"
+NODE_RANK="${MLP_ROLE_INDEX:-0}"
+NNODES="${MLP_WORKER_NUM:-1}"
+GPUS_PER_NODE="${MLP_WORKER_GPU:-8}"
+
+echo "=========================================="
+echo "Node Configuration:"
+echo "  HEAD_NODE_IP: $HEAD_NODE_IP"
+echo "  RAY_PORT: $RAY_PORT"
+echo "  NODE_RANK: $NODE_RANK"
+echo "  NNODES: $NNODES"
+echo "  GPUS_PER_NODE: $GPUS_PER_NODE"
+echo "=========================================="
+
+# Start Ray cluster
+if [ "$NODE_RANK" == "0" ]; then
+    echo "Starting Ray HEAD node..."
+    ray start --head \
+        --node-ip-address="$HEAD_NODE_IP" \
+        --port="$RAY_PORT" \
+        --num-gpus="$GPUS_PER_NODE" \
+        --disable-usage-stats
+    
+    # Wait for all worker nodes to join
+    echo "Waiting for $NNODES nodes to join the cluster..."
+    while [ $(ray status 2>/dev/null | grep -c "node_") -lt "$NNODES" ]; do
+        echo "  Current nodes: $(ray status 2>/dev/null | grep -c 'node_') / $NNODES"
+        sleep 5
+    done
+    echo "All $NNODES nodes have joined the cluster!"
+    ray status
+else
+    echo "Starting Ray WORKER node..."
+    # Wait for head node to be ready
+    sleep 10
+    ray start --address="$HEAD_NODE_IP:$RAY_PORT" \
+        --num-gpus="$GPUS_PER_NODE" \
+        --disable-usage-stats
+    echo "Worker node joined the cluster!"
+    
+    # Worker nodes wait for training to complete
+    echo "Worker node waiting for training to finish..."
+    while true; do
+        if ! ray status &>/dev/null; then
+            echo "Ray cluster disconnected, exiting..."
+            break
+        fi
+        sleep 10
+    done
+    exit 0
+fi
+
+# Only head node executes the training
 MODEL_PATH="/vepfs/public/model-public/Qwen3.5-35B-A3B"
 TRAIN_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/train_new_v2.parquet"
 VAL_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/test_new_v2.parquet"
