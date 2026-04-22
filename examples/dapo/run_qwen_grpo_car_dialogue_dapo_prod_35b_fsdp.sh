@@ -128,7 +128,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.checkpoint.async_save=False \
     actor_rollout_ref.actor.use_torch_compile=False \
     actor_rollout_ref.actor.strategy=fsdp \
-    actor_rollout_ref.actor.fsdp_config.fsdp_size=8 \
+    actor_rollout_ref.actor.fsdp_config.fsdp_size=4 \
     actor_rollout_ref.actor.fsdp_config.reshard_after_forward=True \
     actor_rollout_ref.actor.fsdp_config.entropy_checkpointing=True \
     actor_rollout_ref.actor.entropy_from_logits_with_chunking=True \
