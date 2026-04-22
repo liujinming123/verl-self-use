@@ -62,8 +62,8 @@ fi
 
 # Only head node executes the training
 MODEL_PATH="/vepfs/public/model-public/Qwen3.5-35B-A3B"
-TRAIN_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/train_new_v2.parquet"
-VAL_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/test_new_v2.parquet"
+TRAIN_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/train_reason_v2.parquet"
+VAL_FILES="/vepfs/group03/user/ljm/work/qwen_grpo/data/verl_format/test_reason_v2.parquet"
 
 TP=${TP:-2}
 PP=${PP:-1}
@@ -132,7 +132,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.ppo_epochs=1 \
     actor_rollout_ref.actor.checkpoint.save_contents='["model"]' \
     actor_rollout_ref.actor.checkpoint.async_save=False \
-    actor_rollout_ref.actor.use_torch_compile=False \
+    actor_rollout_ref.actor.use_torch_compile=True \
     actor_rollout_ref.actor.strategy=megatron \
     actor_rollout_ref.actor.megatron.use_mbridge=True \
     actor_rollout_ref.actor.megatron.vanilla_mbridge=True \
