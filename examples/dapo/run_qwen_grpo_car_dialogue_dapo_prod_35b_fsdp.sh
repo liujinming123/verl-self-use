@@ -80,13 +80,13 @@ kl_loss_coef=0.0
 
 enable_filter_groups=True
 filter_groups_metric=seq_reward
-max_num_gen_batches=16
+max_num_gen_batches=10
 
 max_prompt_length=5000
 max_response_length=15000
-n_resp_per_prompt=16
-train_prompt_mini_bsz=8
-train_bsz=8
+n_resp_per_prompt=32
+train_prompt_mini_bsz=16
+train_bsz=16
 
 lr=1e-6
 log_every_n_steps=10
@@ -119,8 +119,8 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.loss_agg_mode=${loss_agg_mode} \
     actor_rollout_ref.actor.ppo_mini_batch_size=${train_prompt_mini_bsz} \
     actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=1 \
-    actor_rollout_ref.actor.ppo_max_token_len_per_gpu=1024 \
-    actor_rollout_ref.actor.use_dynamic_bsz=False \
+    actor_rollout_ref.actor.ppo_max_token_len_per_gpu=20480 \
+    actor_rollout_ref.actor.use_dynamic_bsz=True \
     actor_rollout_ref.actor.entropy_coeff=0 \
     actor_rollout_ref.actor.calculate_entropy=False \
     actor_rollout_ref.actor.ppo_epochs=1 \
@@ -128,7 +128,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.checkpoint.async_save=False \
     actor_rollout_ref.actor.use_torch_compile=False \
     actor_rollout_ref.actor.strategy=fsdp \
-    actor_rollout_ref.actor.fsdp_config.fsdp_size=4 \
+    actor_rollout_ref.actor.fsdp_config.fsdp_size=8 \
     actor_rollout_ref.actor.fsdp_config.reshard_after_forward=True \
     actor_rollout_ref.actor.fsdp_config.entropy_checkpointing=True \
     actor_rollout_ref.actor.entropy_from_logits_with_chunking=True \
@@ -143,10 +143,10 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.gpu_memory_utilization=0.2 \
     actor_rollout_ref.rollout.max_model_len=${max_response_length} \
     actor_rollout_ref.rollout.enable_chunked_prefill=True \
-    actor_rollout_ref.rollout.max_num_batched_tokens=1024 \
+    actor_rollout_ref.rollout.max_num_batched_tokens=20480 \
     actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=1 \
-    actor_rollout_ref.rollout.log_prob_use_dynamic_bsz=False \
-    actor_rollout_ref.rollout.log_prob_max_token_len_per_gpu=1024 \
+    actor_rollout_ref.rollout.log_prob_use_dynamic_bsz=True \
+    actor_rollout_ref.rollout.log_prob_max_token_len_per_gpu=20480 \
     actor_rollout_ref.rollout.multi_stage_wake_up=True \
     actor_rollout_ref.rollout.over_sample_rate=0 \
     ++actor_rollout_ref.rollout.mode=async \
@@ -166,8 +166,8 @@ python3 -m verl.trainer.main_ppo \
     trainer.project_name='qwen_grpo_car_dialogue_dapo' \
     trainer.experiment_name='prod_qwen35_35b_a3b_reasonv2_fsdp_rl' \
     trainer.n_gpus_per_node=8 \
-    trainer.nnodes=1 \
-    trainer.save_freq=1287 \
+    trainer.nnodes=2 \
+    trainer.save_freq=644 \
     trainer.test_freq=-1 \
     trainer.total_epochs=1 \
     trainer.val_before_train=False \
