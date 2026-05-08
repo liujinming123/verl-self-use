@@ -47,6 +47,15 @@ class SingleTurnAgentLoop(AgentLoopBase):
             videos=videos,
         )
 
+        # 2.5 append generation prefix tokens (e.g., <|action|>\n)
+        generation_prefix = None
+        extra_info = kwargs.get("extra_info")
+        if extra_info and isinstance(extra_info, dict):
+            generation_prefix = extra_info.get("generation_prefix")
+        if generation_prefix:
+            prefix_ids = self.tokenizer.encode(generation_prefix, add_special_tokens=False)
+            prompt_ids = prompt_ids + prefix_ids
+
         # 3. generate sequences
         metrics = {}
         with simple_timer("generate_sequences", metrics):
