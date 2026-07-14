@@ -1,12 +1,13 @@
 """Tag + params key + params value partial match reward for taskllm.
 
 Scoring:
-  - tag match:       +1
-  - params keys match: +1 (exact key set equality)
-  - params values match: +1 (all key-value pairs equal)
+  - tag match:         +1
+  - params keys match:   +1 (exact key set equality; both empty also counts)
+  - params values match: +1 (all key-value pairs equal; both empty also counts)
 
-If ground truth has no params, only tag is scored (max score = 1).
-If ground truth has params, max score = 3.
+When both prediction and ground truth have no params, the empty param dicts
+are treated as key set equal and value equal, so each contributes +1.
+Max score = 3 regardless of whether GT has params.
 """
 
 import re
@@ -40,7 +41,12 @@ def parse_action(text):
 
 
 def compute_score(solution_str, ground_truth, data_source=None, extra_info=None, **kwargs):
-    """Partial match reward: tag +1, params keys +1, params values +1."""
+    """Partial match reward: tag +1, params keys +1, params values +1.
+
+    None params are normalized to empty dicts, so when both prediction and
+    ground truth have no params, the empty key set and empty value mapping
+    each count as a match (+1 +1).
+    """
     cleaned = solution_str.strip()
     gt = ground_truth.strip() if isinstance(ground_truth, str) else str(ground_truth).strip()
 
@@ -56,23 +62,22 @@ def compute_score(solution_str, ground_truth, data_source=None, extra_info=None,
     tag_pred, params_pred = parsed_pred
     tag_gt, params_gt = parsed_gt
 
+    # Normalize None to empty dict so the "both no params" case is treated
+    # as key set equal and value equal.
+    params_pred_norm = params_pred if params_pred is not None else {}
+    params_gt_norm = params_gt if params_gt is not None else {}
+
     # Tag match: +1
     if tag_pred == tag_gt:
         score += 1.0
 
-    # Params scoring only when ground truth has params
-    if params_gt is not None:
-        if params_pred is not None:
-            # Keys match: +1 (exact key set equality)
-            if set(params_pred.keys()) == set(params_gt.keys()):
-                score += 1.0
-                # Values match: +1 (all key-value pairs equal)
-                if params_pred == params_gt:
-                    score += 1.0
+    # Params keys match: +1 (exact key set equality; both empty also counts)
+    if set(params_pred_norm.keys()) == set(params_gt_norm.keys()):
+        score += 1.0
+        # Params values match: +1 (all key-value pairs equal; both empty also counts)
+        if params_pred_norm == params_gt_norm:
+            score += 1.0
 
     # Full match: tag + params all correct
-    fully_matched = (tag_pred == tag_gt) and (
-        (params_gt is None and params_pred is None)
-        or (params_gt is not None and params_pred is not None and params_pred == params_gt)
-    )
+    fully_matched = (tag_pred == tag_gt) and (params_pred_norm == params_gt_norm)
     return {"score": score, "acc": int(fully_matched)}
