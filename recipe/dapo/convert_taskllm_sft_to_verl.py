@@ -13,7 +13,8 @@ Output format (verl RL parquet):
     - extra_info: dict
 
 Each conversation produces ONE training sample:
-  - prompt = system + all turns except the last assistant response
+  - prompt = all turns except the last assistant response (NO system prompt;
+    it is injected at runtime by verl via `data.system_prompt_file`)
   - ground_truth = text AFTER <|action|>\n in the last assistant response
   (The model generates the full assistant response including <|action|>\n,
    but the reward function only evaluates the part after <|action|>\n.)
@@ -44,18 +45,19 @@ def extract_ground_truth(last_assistant_response):
     return last_assistant_response.strip()
 
 
-def convert_conversation(row_idx, system, conversations, split):
+def convert_conversation(row_idx, conversations, split):
     """Convert one conversation to a single verl-format training sample.
 
     The prompt includes all turns EXCEPT the last assistant response.
     The ground_truth is extracted from the last assistant response
     (text AFTER <|action|>\n).
-    """
-    # Build full message list
-    messages = []
-    if system:
-        messages.append({"role": "system", "content": system})
 
+    The shared system prompt is NOT stored per row; it is injected at
+    runtime by verl via `data.system_prompt_file` (see rl_dataset), to
+    avoid duplicating a large system prompt across every row.
+    """
+    # Build message list (system prompt is injected at runtime, not stored)
+    messages = []
     for turn in conversations:
         role = "user" if turn["from"] == "human" else "assistant"
         messages.append({"role": role, "content": turn["value"]})
@@ -110,7 +112,7 @@ def main():
     all_samples = []
     skipped = 0
     for idx, row in df.iterrows():
-        sample = convert_conversation(idx, row["system"], row["conversations"], args.split)
+        sample = convert_conversation(idx, row["conversations"], args.split)
         if sample is not None:
             all_samples.append(sample)
         else:

@@ -1,0 +1,15 @@
+# 重目录/运行产物，不进镜像
+checkpoints/
+.git/
+tensorboard_log/
+outputs/
+log/
+verl.egg-info/
+.ruff_cache/
+.vscode/
+.claude/
+.gemini/
+.github/
+**/__pycache__/
+*.pyc
+*.log

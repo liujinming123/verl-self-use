@@ -140,8 +140,27 @@ class RLHFDataset(Dataset):
         self.shuffle = config.get("shuffle", False)
         self.seed = config.get("seed")
 
+        # Shared system prompt injected at runtime instead of being duplicated
+        # into every parquet row. Loaded from a file via `data.system_prompt_file`.
+        # The system message is prepended to each row's messages in
+        # `_build_messages` (rollout) and in the overlong-prompt filter so that
+        # length accounting stays correct.
+        self.system_prompt = None
+        system_prompt_file = config.get("system_prompt_file", None)
+        if system_prompt_file:
+            with open(os.path.expanduser(system_prompt_file), "r", encoding="utf-8") as f:
+                self.system_prompt = f.read().strip() or None
+
         self._download()
         self._read_files_and_tokenize()
+
+    def _inject_system(self, messages: list) -> list:
+        """Prepend the shared system prompt to messages (no-op if already present)."""
+        if not self.system_prompt:
+            return messages
+        if messages and isinstance(messages[0], dict) and messages[0].get("role") == "system":
+            return messages
+        return [{"role": "system", "content": self.system_prompt}, *messages]
 
     def _download(self, use_origin_parquet=False):
         from verl.utils.fs import copy_to_local
@@ -192,7 +211,7 @@ class RLHFDataset(Dataset):
 
                 def doc2len(doc) -> int:
                     try:
-                        messages = self._build_messages(doc)
+                        messages = self._inject_system(self._build_messages(doc))
                         # pass tool schemas if available so the processor can format prompts
                         apply_kwargs = dict(**self.apply_chat_template_kwargs)
                         if self.tool_schemas is not None:
@@ -244,7 +263,7 @@ class RLHFDataset(Dataset):
                             apply_kwargs["tools"] = self.tool_schemas
 
                         return len(
-                            tokenizer.apply_chat_template(doc[prompt_key], add_generation_prompt=True, **apply_kwargs)
+                            tokenizer.apply_chat_template(self._inject_system(doc[prompt_key]), add_generation_prompt=True, **apply_kwargs)
                         )
                     except Exception:
                         print("Error processing one of the samples, skipping...")
@@ -336,7 +355,7 @@ class RLHFDataset(Dataset):
     def __getitem__(self, item):
         """For rollout, apply_chat_template has been moved to AgentLoop, so we only return raw_prompt here."""
         row_dict: dict = self.dataframe[item]
-        row_dict["raw_prompt"] = self._build_messages(row_dict)
+        row_dict["raw_prompt"] = self._inject_system(self._build_messages(row_dict))
 
         # TODO(wuxibin): We still need a dummy tensor to make sure DataProto.batch is not empty.
         # Remove this after deprecate DataProto by TensorDict.

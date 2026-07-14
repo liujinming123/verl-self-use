@@ -27,6 +27,23 @@ Value score:
 import re
 
 
+_THINK_PATTERN = re.compile(r"<think>.*?</think>", re.DOTALL)
+# Fallback: an unclosed <think> (e.g. truncated rollout) -> drop the rest.
+_THINK_UNCLOSED_PATTERN = re.compile(r"<think>.*", re.DOTALL)
+
+
+def strip_think(text):
+    """Remove <think>...</think> reasoning blocks from model output.
+
+    Think models wrap their chain-of-thought in <think>...</think>; the reward
+    should only score the final action outside those tags. Handles balanced
+    blocks first, then any trailing unclosed <think> (truncation).
+    """
+    text = _THINK_PATTERN.sub("", text)
+    text = _THINK_UNCLOSED_PATTERN.sub("", text)
+    return text
+
+
 def parse_action(text):
     """Parse tag and params from action content string.
 
@@ -121,7 +138,8 @@ def _value_score(pred_params, gt_params):
 
 def compute_score(solution_str, ground_truth, data_source=None, extra_info=None, **kwargs):
     """Partial match reward: tag +1, params keys F1 in [0,1], params values mean Lev-sim in [0,1]."""
-    cleaned = solution_str.strip()
+    # Strip ulg...思考...lg思考 reasoning blocks from think-model output.
+    cleaned = strip_think(solution_str).strip()
     gt = ground_truth.strip() if isinstance(ground_truth, str) else str(ground_truth).strip()
 
     parsed_pred = parse_action(cleaned)

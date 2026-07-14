@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git ls-tree *)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:zhuanlan.zhihu.com)",
+      "WebFetch(domain:modelscope.cn)",
+      "Bash(python3 *)",
+      "Bash(find *)"
+    ]
+  }
+}

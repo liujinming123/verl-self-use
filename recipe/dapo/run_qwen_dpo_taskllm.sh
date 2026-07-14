@@ -16,17 +16,15 @@ export HYDRA_FULL_ERROR=1
 DATA_DIR="/vepfs/group03/user/ljm/work/taskllm_sft/data"
 VERL_DATA_DIR="${DATA_DIR}/verl_format"
 
-if [ ! -f "${VERL_DATA_DIR}/train.parquet" ] || [ ! -f "${VERL_DATA_DIR}/test.parquet" ]; then
-    echo "Converting data to verl format..."
-    python3 recipe/dapo/convert_taskllm_sft_to_verl.py \
-        --input_file "${DATA_DIR}/train.parquet" \
-        --output_file "${VERL_DATA_DIR}/train.parquet" \
-        --split train
-    python3 recipe/dapo/convert_taskllm_sft_to_verl.py \
-        --input_file "${DATA_DIR}/test.parquet" \
-        --output_file "${VERL_DATA_DIR}/test.parquet" \
-        --split test
-fi
+echo "Converting data to verl format..."
+python3 recipe/dapo/convert_taskllm_sft_to_verl.py \
+    --input_file "${DATA_DIR}/train.parquet" \
+    --output_file "${VERL_DATA_DIR}/train.parquet" \
+    --split train
+python3 recipe/dapo/convert_taskllm_sft_to_verl.py \
+    --input_file "${DATA_DIR}/test.parquet" \
+    --output_file "${VERL_DATA_DIR}/test.parquet" \
+    --split test
 
 # ==================== DPO Config ====================
 # DPO beta (temperature for DPO loss, higher = more conservative)
@@ -132,7 +130,7 @@ python3 -m recipe.spin.main_spin \
     reward_model.reward_manager=dapo \
     trainer.logger='["console","tensorboard"]' \
     trainer.project_name='taskllm_dialogue_dpo' \
-    trainer.experiment_name='taskllm_dpo_exact_match' \
+    trainer.experiment_name='taskllm_dpo_exact_match_keep_category' \
     trainer.n_gpus_per_node=4 \
     trainer.nnodes=1 \
     trainer.save_freq=${save_freq} \
